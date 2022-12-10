@@ -48,6 +48,8 @@
 // Support for changing the brightness of the LEDs
 #include "Kaleidoscope-LEDBrightnessConfig.h"
 
+#include "Kaleidoscope-LEDEffect-Rainbow.h"
+
 // Support for Keyboardio's internal keyboard testing mode
 #include "Kaleidoscope-HardwareTestMode.h"
 
@@ -409,6 +411,29 @@ static void enterHardwareTestMode(uint8_t combo_index) {
   HardwareTestMode.runTests();
 }
 
+namespace kaleidoscope {
+class RainbowLayer0 : public Plugin {
+ public:
+  RainbowLayer0() {}
+
+  EventHandlerResult onLayerChange() {
+    switch (Layer.mostRecent())
+    {
+    case 0:
+      LEDRainbowWaveEffect.activate();
+      break;
+    
+    default:
+      ColormapEffect.activate();
+      break;
+    }
+    return EventHandlerResult::OK;
+  }
+};
+
+}  // namespace kaleidoscope
+
+kaleidoscope::RainbowLayer0 RainbowLayer0;
 
 /** Magic combo list, a list of key combo and action pairs the firmware should
  * recognise.
@@ -529,6 +554,9 @@ KALEIDOSCOPE_INIT_PLUGINS(
 
   // Enables controlling (and saving) the brightness of the LEDs via Focus.
   LEDBrightnessConfig,
+  LEDRainbowWaveEffect,
+
+  RainbowLayer0,
 
   // Enables the GeminiPR Stenography protocol. Unused by default, but with the
   // plugin enabled, it becomes configurable - and then usable - via Chrysalis.
@@ -560,6 +588,9 @@ void setup() {
   // maps for. To make things simple, we set it to eight layers, which is how
   // many editable layers we have (see above).
   ColormapEffect.max_layers(8);
+  
+  LEDRainbowEffect.brightness(150);
+  LEDRainbowWaveEffect.brightness(150);
 
   // For Dynamic Macros, we need to reserve storage space for the editable
   // macros. A kilobyte is a reasonable default.
